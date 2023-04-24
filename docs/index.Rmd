@@ -1,0 +1,1936 @@
+---
+title: "Final Project SG Git "
+author: "Carsten Betson"
+date: "2022-11-10"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+# Data Sets
+2022 Houston Astros Record: 106-56
+
+1998 New York Yankees Record:114-48
+
+## 2022 Astros Batting Statistics
+```{r}
+library(readxl)
+exceldata = read_excel("C:\\Users\\carst\\OneDrive - Bowling Green State University\\BGSU Fall 2022\\Statistical Graphics\\Final Project\\Astros Batting.xlsx", sheet=NULL)
+AB = data.frame(exceldata)
+AB
+```
+
+## 2022 Astros Pitching Statistics
+```{r}
+library(readxl)
+exceldata = read_excel("C:\\Users\\carst\\OneDrive - Bowling Green State University\\BGSU Fall 2022\\Statistical Graphics\\Final Project\\Astros Pitching.xlsx", sheet=NULL)
+AP = data.frame(exceldata)
+AP
+```
+
+## 1998 Yankees Batting Statistics
+```{r}
+library(readxl)
+exceldata = read_excel("C:\\Users\\carst\\OneDrive - Bowling Green State University\\BGSU Fall 2022\\Statistical Graphics\\Final Project\\Yanks Batting.xlsx", sheet=NULL)
+YB = data.frame(exceldata)
+YB
+```
+
+## 1998 Yankees Pitching Statistics
+```{r}
+library(readxl)
+exceldata = read_excel("C:\\Users\\carst\\OneDrive - Bowling Green State University\\BGSU Fall 2022\\Statistical Graphics\\Final Project\\Yanks Pitching.xlsx", sheet=NULL)
+YP = data.frame(exceldata)
+YP
+```
+
+## 2022 American League Statistics
+```{r}
+library(readxl)
+exceldata = read_excel("C:\\Users\\carst\\OneDrive - Bowling Green State University\\BGSU Fall 2022\\Statistical Graphics\\Final Project\\2022 AL Batting.xlsx", sheet=NULL)
+AR = data.frame(exceldata)
+AR
+```
+
+## 1998 American League Statistics
+```{r}
+library(readxl)
+exceldata = read_excel("C:\\Users\\carst\\OneDrive - Bowling Green State University\\BGSU Fall 2022\\Statistical Graphics\\Final Project\\1998 AL Batting.xlsx", sheet=NULL)
+YR = data.frame(exceldata)
+YR
+```
+
+
+# Chapter 2 Graphics
+
+## The Dot Chart - Astros HR
+```{r}
+library(ggplot2)
+
+un_fiscal<-data.frame(AB$Name, AB$HR)
+
+figure<-ggplot(un_fiscal,aes(x=reorder(AB$Name,-AB$HR), y=AB$HR)) +
+geom_pointrange(ymin=-2,ymax=AB$HR, linetype = 3)+ coord_flip()
+
+figure<-figure+theme(plot.background=
+element_rect(fill=NULL,colour = "white",
+linetype="solid"))+scale_y_continuous(expand=c(0,0),breaks=5*(0:10),
+limits=c(-2,40))+ggtitle("2022 Astros HR")+theme_bw()+ylab("Home Runs")+xlab("")+ theme(plot.title = element_text(hjust = 0.5))
+
+print(figure)
+```
+
+## The Dot Chart - Yankees HR
+```{r}
+library(ggplot2)
+
+un_fiscal<-data.frame(YB$Name, YB$HR)
+
+figure<-ggplot(un_fiscal,aes(x=reorder(YB$Name,-YB$HR), y=YB$HR)) +
+geom_pointrange(ymin=-2,ymax=YB$HR, linetype = 3)+ coord_flip()
+
+figure<-figure+theme(plot.background=
+element_rect(fill=NULL,colour = "white",
+linetype="solid"))+scale_y_continuous(expand=c(0,0),breaks=5*(0:10),
+limits=c(-2,40))+ggtitle("1998 Yankees HR")+theme_bw()+ylab("Home Runs")+xlab("")+ theme(plot.title = element_text(hjust = 0.5))
+
+print(figure)
+```
+
+## The Bar Chart - Astros Hits
+```{r}
+library(ggplot2)
+Category<-rep(AB$Name[1],round(AB$H[1]))
+for (i in 2:length(AB$H))Category<-c(Category,
+rep(AB$Name[i],round(AB$H[i])))
+
+figure<-qplot(Category,geom="bar", main = "2022 Astros Hits",ylab="Hits") + coord_flip()+theme(plot.title = element_text(hjust = 0.52))
+
+print(figure)
+```
+
+## The Bar Chart - Yankees Hits
+```{r}
+library(ggplot2)
+Category<-rep(YB$Name[1],round(YB$H[1]))
+for (i in 2:length(YB$H))Category<-c(Category,
+rep(YB$Name[i],round(YB$H[i])))
+
+figure<-qplot(Category,geom="bar", main = "1998 Yankees Hits",ylab="Hits") + coord_flip()+theme(plot.title = element_text(hjust = 0.52))
+
+print(figure)
+```
+
+## The Pie Chart - Astros Team Hits
+```{r}
+library(ggplot2)
+library(scales)
+Name <- c("Singles", "Doubles", "Triples", "Home Runs")
+Totals <- c(830,284,13,214)
+piepercent <- round(Totals/sum(Totals),3)
+pie(Totals, labels = percent(piepercent), col=c("red","blue","orange","green"), main="2022 Astros Team Hits")
+legend(x=1.1, y=.8, c("Singles","Doubles","Triples","Home Runs"), fill=c("red","blue","orange","green"))
+```
+
+## The Pie Chart - Yankees Team Hits
+```{r}
+library(ggplot2)
+library(scales)
+Name <- c("Singles", "Doubles", "Triples", "Home Runs")
+Totals <- c(1097,290,31,207)
+piepercent <- round(Totals/sum(Totals),3)
+pie(Totals, labels = percent(piepercent), col=c("red","blue","orange","green"), main="1998 Yankees Team Hits")
+legend(x=1.1, y=.8, c("Singles","Doubles","Triples","Home Runs"), fill=c("red","blue","orange","green"))
+```
+
+# Chapter 3 Graphics
+## The Stacked Bar Chart - Astros Team Hits
+```{r}
+library(ggplot2)
+Name <- c("Singles", "Doubles", "Triples", "Home Runs")
+Totals <- c(830,284,13,214)
+colr<-c("red","blue","orange","green")
+item1<-rev(Name)
+amount1<-matrix((Totals),ncol=1,
+nrow=length(Totals))
+barplot(height=amount1,space=c(0,12),horiz=TRUE,
+axes=FALSE,beside=FALSE,width=rep(.75,20),
+ylim=c(0,2),legend.text=FALSE,col=colr,
+xlim=c(0,1400),xlab="Hits",main = "2022 Astros Team Hits")
+axis(1,at=(0:14)*100,labels=c("0","","200",
+"","400","","600","","800","","1000","","1200","","1400"))
+
+legend(x="top",legend=Name[1:4],
+fill=colr[1:4],y.intersp=1,bty="n")
+
+```
+
+## The Stacked Bar Chart - Yankees Team Hits
+```{r}
+library(ggplot2)
+Name <- c("Singles", "Doubles", "Triples", "Home Runs")
+Totals <- c(1097,290,31,207)
+colr<-c("red","blue","orange","green")
+item1<-rev(Name)
+amount1<-matrix((Totals),ncol=1,
+nrow=length(Totals))
+barplot(height=amount1,space=c(0,12),horiz=TRUE,
+axes=FALSE,beside=FALSE,width=rep(.75,20),
+ylim=c(0,2),legend.text=FALSE,col=colr,
+xlim=c(0,1800),xlab="Hits",main = "1998 Yankees Team Hits")
+axis(1,at=(0:18)*100)
+
+legend(x="top",legend=Name[1:4],
+fill=colr[1:4],y.intersp=1,bty="n")
+
+```
+
+## The Bar-Whisker Chart - Astros Team Hits
+```{r}
+library(ggplot2)
+Name <- c("Singles", "Doubles", "Triples", "Home Runs")
+Totals <- c(61.89,21.18,0.97,15.96)
+se <- sqrt((Totals*(100-Totals))/400)
+par(mar=c(5.1,15,3,.75))
+barplot(Totals,space=0.5,names.arg=NULL,horiz=TRUE,
+axes=FALSE,xlim=c(0,100),xlab="Per Cent",col=1)+title("2022 Astros Team Hits")
+## numeric(0)
+yy<-1.5*(1:length(Totals)-0.33)
+for (i in 1:4) lines(x=c(Totals[i],Totals[i]+se[i]),
+y=rep(yy[i],2))
+axis(1,tick=TRUE,xaxp=c(0,100,10))
+yyy<-1.5*(1:length(Totals)-.5)
+axis(2,at=yyy+0.1,labels=Name,font=1,tck=0,tcl=0,
+las=1,padj=0,col=0)
+
+```
+
+## The Bar-Whisker Chart - Yankees Team Hits
+```{r}
+library(ggplot2)
+Name <- c("Singles", "Doubles", "Triples", "Home Runs")
+Totals <- c(67.5,17.85,1.91,12.74)
+se <- sqrt((Totals*(100-Totals))/400)
+par(mar=c(5.1,15,3,.75))
+barplot(Totals,space=0.5,names.arg=NULL,horiz=TRUE,
+axes=FALSE,xlim=c(0,100),xlab="Per Cent",col=1)+title("1998 Yankees Team Hits")
+## numeric(0)
+yy<-1.5*(1:length(Totals)-0.33)
+for (i in 1:4) lines(x=c(Totals[i],Totals[i]+se[i]),
+y=rep(yy[i],2))
+axis(1,tick=TRUE,xaxp=c(0,100,10))
+yyy<-1.5*(1:length(Totals)-.5)
+axis(2,at=yyy+0.1,labels=Name,font=1,tck=0,tcl=0,
+las=1,padj=0,col=0)
+
+```
+
+## The Dot - Whisker Chart - Astros Team Hits
+```{r}
+library(ggplot2)
+Name <- c("Singles", "Doubles", "Triples", "Home Runs")
+Totals <- c(61.89,21.18,0.97,15.96)
+se <- sqrt((Totals*(100-Totals))/400)
+dotchart(Totals,labels=Name,lcolor="white",col="Black",
+bg="black",xlim=c(0,100),xlab="Per Cent")+title("2022 Astros Team Hits",adj=.575)
+## integer(0)
+yy<-1:length(Totals)
+for (i in 1:4) {
+lines(x=c(Totals[i]-1.96*se[i],Totals[i]+1.96*se[i]),
+y=rep(yy[i],2))
+lines(x=rep(Totals[i]-se[i],2),y=c(yy[i]+0.15/2,
+yy[i]-0.15/2))
+lines(x=rep(Totals[i]+se[i],2),y=c(yy[i]+0.15/2,
+yy[i]-0.15/2))
+}
+
+```
+
+## The Dot - Whisker Chart - Yankees Team Hits
+```{r}
+library(ggplot2)
+Name <- c("Singles", "Doubles", "Triples", "Home Runs")
+Totals <- c(67.5,17.85,1.91,12.74)
+se <- sqrt((Totals*(100-Totals))/400)
+dotchart(Totals,labels=Name,lcolor="white",col="Black",
+bg="black",xlim=c(0,100),xlab="Per Cent")+title("1998 Yankees Team Hits",adj=.575)
+## integer(0)
+yy<-1:length(Totals)
+for (i in 1:4) {
+lines(x=c(Totals[i]-1.96*se[i],Totals[i]+1.96*se[i]),
+y=rep(yy[i],2))
+lines(x=rep(Totals[i]-se[i],2),y=c(yy[i]+0.15/2,
+yy[i]-0.15/2))
+lines(x=rep(Totals[i]+se[i],2),y=c(yy[i]+0.15/2,
+yy[i]-0.15/2))
+}
+
+```
+
+# Chapter 4 Graphics
+## The Dotplot - Astros Innings Pitched
+```{r}
+stripchart(AP$IP,method="jitter",xlab="Innings Pitched",
+pch=19,cex=.5,main="2022 Astros Innings Pitched")
+options(scipen = 999)
+```
+
+## The Dotplot - Yankees Innings Pitched
+```{r}
+stripchart(YP$IP,method="jitter",xlab="Innings Pitched",
+pch=19,cex=.5,main="1998 Yankees Innings Pitched")
+options(scipen = 999)
+```
+
+## The Dotplot - Astros Wins
+```{r}
+stripchart(AP$W,method="jitter",xlab="Wins",
+pch=19,cex=.5,main="2022 Astros Wins")
+options(scipen = 999)
+```
+
+## The Dotplot - Yankees Wins
+```{r}
+stripchart(YP$W,method="jitter",xlab="Wins",
+pch=19,cex=.5,main="1998 Yankees Wins")
+options(scipen = 999)
+```
+
+## The Stemplot - Astros Innings Pitched
+```{r}
+stem(AP$IP, scale=5)
+```
+
+## The Stemplot - Yankees Innings Pitched
+```{r}
+stem(YP$IP, scale=5)
+```
+
+## The Stemplot - Astros Wins
+```{r}
+stem(AP$W)
+```
+
+## The Stemplot - Yankees Wins
+```{r}
+stem(YP$W)
+```
+
+## The Boxplot - Astros Innings Pitched
+```{r}
+boxplot(AP$IP,range=1.5,horizontal=TRUE,
+pars=list(boxwex=1.5),xlab="Astros Innings Pitched", cex=1.0,
+ylim=c(-4.,250.),yaxp=c(-50.,50.,10),outline=TRUE)
+```
+
+## The Boxplot - Yankees Innings Pitched
+```{r}
+boxplot(YP$IP,range=1.5,horizontal=TRUE,
+pars=list(boxwex=1.5),xlab="Yankees Innings Pitched", cex=1.0,
+ylim=c(-4.,250.),yaxp=c(-50.,50.,10),outline=TRUE)
+```
+
+## The Boxplot - Astros Wins
+```{r}
+boxplot(AP$W,range=1.5,horizontal=TRUE,
+pars=list(boxwex=1.5),xlab="Astros Wins", cex=1.0,
+ylim=c(-1.,25),yaxp=c(-50.,50.,10),outline=TRUE)
+```
+
+## The Boxplot - Yankees Wins
+```{r}
+boxplot(YP$W,range=1.5,horizontal=TRUE,
+pars=list(boxwex=1.5),xlab="Yankees Wins", cex=1.0,
+ylim=c(-1.,25),yaxp=c(-50.,50.,10),outline=TRUE)
+```
+
+## The EDF Plot - Astros Innings Pitched
+```{r}
+library(ggplot2)
+ggplot(AP, aes(x=AP$IP)) + stat_ecdf() +
+theme_linedraw() + theme(panel.grid=element_blank(),plot.title = element_text(hjust = 0.5)) +
+scale_x_continuous(breaks=50*(0:5),limits=c(-10,250)) +
+labs(x="Innings Pitched",y="Empirical Distribution Function")+stat_function(fun = pnorm, args=list(mean(AP$IP),sd(AP$IP)))+ggtitle("2022 Astros Innings Pitched")
+```
+
+## The EDF Plot - Yankees Innings Pitched
+```{r}
+library(ggplot2)
+ggplot(YP, aes(x=YP$IP)) + stat_ecdf() +
+theme_linedraw() + theme(panel.grid=element_blank(),plot.title = element_text(hjust = 0.5)) +
+scale_x_continuous(breaks=50*(0:5),limits=c(-10,250)) +
+labs(x="Innings Pitched",y="Empirical Distribution Function")+stat_function(fun = pnorm, args=list(mean(YP$IP),sd(YP$IP)))+ggtitle("1998 Yankees Innings Pitched")
+```
+
+## The EDF Plot - Astros Wins
+```{r}
+library(ggplot2)
+ggplot(AP, aes(x=AP$W)) + stat_ecdf() +
+theme_linedraw() + theme(panel.grid=element_blank(),plot.title = element_text(hjust = 0.5)) +
+scale_x_continuous(breaks=5*(0:5),limits=c(-1,25)) +
+labs(x="Wins",y="Empirical Distribution Function")+stat_function(fun = pnorm, args=list(mean(AP$W),sd(AP$W)))+ggtitle("2022 Astros Wins")
+```
+
+## The EDF Plot - Yankees Wins
+```{r}
+library(ggplot2)
+ggplot(YP, aes(x=YP$W)) + stat_ecdf() +
+theme_linedraw() + theme(panel.grid=element_blank(),plot.title = element_text(hjust = 0.5)) +
+scale_x_continuous(breaks=5*(0:5),limits=c(-1,25)) +
+labs(x="Wins",y="Empirical Distribution Function")+stat_function(fun = pnorm, args=list(mean(YP$W),sd(YP$W)))+ggtitle("1998 Yankees Wins")
+```
+
+# Chapter 5 Graphics
+## The Quantile-Quantile Plot - Astros Hits
+```{r}
+library(ggplot2)
+qqnorm(AB$H,xlim=c(-3,3),ylim=c(0,200),
+xlab="Standard Normal Quantiles",ylab = "Hits",main="2022 Astros Hits")
+abline(a=mean(AB$H),b=sd(AB$H))
+```
+
+## The Quantile-Quantile Plot - Yankees Hits
+```{r}
+library(ggplot2)
+qqnorm(YB$H,xlim=c(-3,3),ylim=c(0,200),
+xlab="Standard Normal Quantiles",ylab = "Hits",main="1998 Yankees Hits")
+abline(a=mean(YB$H),b=sd(YB$H))
+```
+
+## The Quantile-Quantile Plot - Astros HR
+```{r}
+library(ggplot2)
+qqnorm(AB$HR,xlim=c(-3,3),ylim=c(0,40),
+xlab="Standard Normal Quantiles",ylab = "Home Runs",main="2022 Astros HR")
+abline(a=mean(AB$HR),b=sd(AB$HR))
+```
+
+## The Quantile-Quantile Plot - Yankees HR
+```{r}
+library(ggplot2)
+qqnorm(YB$HR,xlim=c(-3,3),ylim=c(0,40),
+xlab="Standard Normal Quantiles",ylab = "Home Runs",main="1998 Yankees HR")
+abline(a=mean(YB$HR),b=sd(YB$HR))
+```
+
+## The Probability Plot - Astros Hits
+```{r}
+library(ggplot2)
+qqnorm(AB$H,xaxt="n",xlim=c(-4,4),ylim=c(0,200),
+ylab = "Hits",xlab="Normal Percentiles",main="2022 Astros Hits")
+lprob<-c("0.01","1","5","25","50","75","95","99","99.99")
+probly<-as.numeric(lprob)/100.
+zprob<-qnorm(probly)
+axis(1,zprob,lprob)
+abline(a=mean(AB$H),b=sd(AB$H))
+```
+
+## The Probability Plot - Yankees Hits
+```{r}
+library(ggplot2)
+qqnorm(YB$H,xaxt="n",xlim=c(-4,4),ylim=c(0,200),
+ylab = "Hits",xlab="Normal Percentiles",main="1998 Yankees Hits")
+lprob<-c("0.01","1","5","25","50","75","95","99","99.99")
+probly<-as.numeric(lprob)/100.
+zprob<-qnorm(probly)
+axis(1,zprob,lprob)
+abline(a=mean(YB$H),b=sd(YB$H))
+```
+
+## The Probability Plot - Astros HR
+```{r}
+library(ggplot2)
+qqnorm(AB$HR,xaxt="n",xlim=c(-4,4),ylim=c(0,40),
+ylab = "Home Runs",xlab="Normal Percentiles",main="2022 Astros HR's")
+lprob<-c("0.01","1","5","25","50","75","95","99","99.99")
+probly<-as.numeric(lprob)/100.
+zprob<-qnorm(probly)
+axis(1,zprob,lprob)
+abline(a=mean(AB$HR),b=sd(AB$HR))
+```
+
+## The Probability Plot - Yankees HR
+```{r}
+library(ggplot2)
+qqnorm(YB$HR,xaxt="n",xlim=c(-4,4),ylim=c(0,40),
+ylab = "Home Runs",xlab="Normal Percentiles",main="1998 Yankees HR's")
+lprob<-c("0.01","1","5","25","50","75","95","99","99.99")
+probly<-as.numeric(lprob)/100.
+zprob<-qnorm(probly)
+axis(1,zprob,lprob)
+abline(a=mean(YB$HR),b=sd(YB$HR))
+```
+
+# Chapter 6 Graphics
+## The Histogram - Astros ERA
+```{r}
+library(ggplot2)
+dt<-data.frame(AP$ERA)
+ggplot(dt, aes(x = AP$ERA)) + 
+  geom_histogram(aes(y = after_stat(count / sum(count))), bins = 12,color="black",fill="white")+ggtitle("2022 Astros ERA")+xlab("Earned Run Average")+ylab("Relative Frequency")+theme(plot.title = element_text(hjust = 0.5))+ stat_ecdf(color="red")
+```
+
+## The Histogram - Yankees ERA
+```{r}
+library(ggplot2)
+dt<-data.frame(YP$ERA)
+ggplot(dt, aes(x = YP$ERA)) + 
+  geom_histogram(aes(y = after_stat(count / sum(count))), bins = 12,color="black",fill="white")+ggtitle("1998 Yankees ERA")+xlab("Earned Run Average")+ylab("Relative Frequency")+theme(plot.title = element_text(hjust = 0.5))+ stat_ecdf(color="red")
+```
+
+## The Histogram - Astros HR9
+```{r}
+library(ggplot2)
+dt<-data.frame(AP$HR9)
+ggplot(dt, aes(x = AP$HR9)) + 
+  geom_histogram(aes(y = after_stat(count / sum(count))), bins = 6,color="black",fill="white")+ggtitle("2022 Astros HR9")+xlab("Home Runs Per 9")+ylab("Relative Frequency")+theme(plot.title = element_text(hjust = 0.5))+ stat_ecdf(color="red")
+```
+
+## The Histogram - Yankees HR9
+```{r}
+library(ggplot2)
+dt<-data.frame(YP$HR9)
+ggplot(dt, aes(x = YP$HR9)) + 
+  geom_histogram(aes(y = after_stat(count / sum(count))), bins = 6,color="black",fill="white")+ggtitle("1998 Yankees HR9")+xlab("Home Runs Per 9")+ylab("Relative Frequency")+theme(plot.title = element_text(hjust = 0.5))+ stat_ecdf(color="red")
+```
+
+## Kernel Density Estimation - Astros ERA
+```{r}
+library(ggplot2)
+bandwith = (.9)*((IQR(AP$ERA))/1.349)*((length(AP$ERA)^(-1/5)))
+dt<-data.frame(AP$ERA)
+ggplot(dt, aes(x = AP$ERA)) + 
+  geom_histogram(aes(y = after_stat(count / sum(count))), bins = 12,color="black",fill="white")+ggtitle("2022 Astros ERA - Gaussian Kernel Density")+xlab("Earned Run Average")+ylab("Relative Frequency")+theme(plot.title = element_text(hjust = 0.5))+geom_density(kernel="gaussian", bw=bandwith)
+```
+
+## Kernel Density Estimation - Yankees ERA
+```{r}
+library(ggplot2)
+bandwith = (.9)*((IQR(YP$ERA))/1.349)*((length(YP$ERA)^(-1/5)))
+dt<-data.frame(YP$ERA)
+ggplot(dt, aes(x = YP$ERA)) + 
+  geom_histogram(aes(y = after_stat(count / sum(count))), bins = 12,color="black",fill="white")+ggtitle("1998 Yankees ERA - Gaussian Kernel Density")+xlab("Earned Run Average")+ylab("Relative Frequency")+theme(plot.title = element_text(hjust = 0.5))+geom_density(kernel="gaussian", bw=bandwith)
+```
+
+## Kernel Density Estimation - Astros HR9
+```{r}
+library(ggplot2)
+bandwith = (.9)*((IQR(AP$HR9))/1.349)*((length(AP$HR9)^(-1/5)))
+dt<-data.frame(AP$HR9)
+ggplot(dt, aes(x = AP$HR9)) + 
+  geom_histogram(aes(y = after_stat(count / sum(count))), bins = 6,color="black",fill="white")+ggtitle("2022 Astros HR9 - Gaussian Kernel Density")+xlab("Home Runs Per 9")+ylab("Relative Frequency")+theme(plot.title = element_text(hjust = 0.5))+geom_density(kernel="gaussian", bw=bandwith)
+```
+
+## Kernel Density Estimation - Yankees HR9
+```{r}
+library(ggplot2)
+bandwith = (.9)*((IQR(YP$HR9))/1.349)*((length(YP$HR9)^(-1/5)))
+dt<-data.frame(YP$HR9)
+ggplot(dt, aes(x = YP$HR9)) + 
+  geom_histogram(aes(y = after_stat(count / sum(count))), bins = 6,color="black",fill="white")+ggtitle("1998 Yankees HR9 - Gaussian Kernel Density")+xlab("Home Runs Per 9")+ylab("Relative Frequency")+theme(plot.title = element_text(hjust = 0.5))+geom_density(kernel="gaussian", bw=bandwith)
+```
+
+# Chapter 7 Graphics
+## Normal Density Estimation - Astros Hits
+```{r}
+library(ggplot2)
+dt<-data.frame(AB$H)
+ggplot(dt, aes(x=AB$H)) +
+geom_histogram(bins=8,
+closed="right",color="black",fill="white",
+aes(x=AB$H,y=..density..)) +
+theme_linedraw() +stat_function(fun=dnorm,
+args=list(mean=mean(AB$H),s =sd(AB$H))) +
+theme(panel.grid=element_blank(),panel.border=element_rect(fill=NULL,color="white",linetype="solid"),axis.line=element_line(),axis.title=element_text(size=12))+ggtitle("2022 Astros Hits")+xlab("Hits")+ylab("Relative Frequency")+theme(plot.title = element_text(hjust = 0.5)) 
+```
+
+## Normal Density Estimation - Yankees Hits
+```{r}
+library(ggplot2)
+dt<-data.frame(YB$H)
+ggplot(dt, aes(x=YB$H)) +
+geom_histogram(bins=8,
+closed="right",color="black",fill="white",
+aes(x=YB$H,y=..density..)) +
+theme_linedraw() +stat_function(fun=dnorm,
+args=list(mean=mean(YB$H),s =sd(YB$H))) +
+theme(panel.grid=element_blank(),panel.border=element_rect(fill=NULL,color="white",linetype="solid"),axis.line=element_line(),axis.title=element_text(size=12))+ggtitle("1998 Yankees Hits")+xlab("Hits")+ylab("Relative Frequency")+theme(plot.title = element_text(hjust = 0.5)) 
+```
+
+## Normal Density Estimation - Astros HR
+```{r}
+library(ggplot2)
+dt<-data.frame(AB$HR)
+ggplot(dt, aes(x=AB$HR)) +
+geom_histogram(bins=8,
+closed="right",color="black",fill="white",
+aes(x=AB$HR,y=..density..)) +
+theme_linedraw() +stat_function(fun=dnorm,
+args=list(mean=mean(AB$HR),s =sd(AB$HR))) +
+theme(panel.grid=element_blank(),panel.border=element_rect(fill=NULL,color="white",linetype="solid"),axis.line=element_line(),axis.title=element_text(size=12))+ggtitle("2022 Astros Home Runs")+xlab("Home Runs")+ylab("Relative Frequency")+theme(plot.title = element_text(hjust = 0.5)) 
+```
+
+## Normal Density Estimation - Yankees HR
+```{r}
+library(ggplot2)
+dt<-data.frame(YB$HR)
+ggplot(dt, aes(x=YB$HR)) +
+geom_histogram(bins=8,
+closed="right",color="black",fill="white",
+aes(x=YB$HR,y=..density..)) +
+theme_linedraw() +stat_function(fun=dnorm,
+args=list(mean=mean(YB$HR),s =sd(YB$HR))) +
+theme(panel.grid=element_blank(),panel.border=element_rect(fill=NULL,color="white",linetype="solid"),axis.line=element_line(),axis.title=element_text(size=12))+ggtitle("1998 Yankees Home Runs")+xlab("Home Runs")+ylab("Relative Frequency")+theme(plot.title = element_text(hjust = 0.5)) 
+```
+
+## Pearson's Curves - Astros Hits
+```{r}
+plot(c(0,2),c(0,9),type="n",xlim=c(0,2),
+ylim=c(1,9),xlab=expression(beta [1]),
+ylab=" ",xaxt="n",yaxt="n", main="Astros Hits")
+#
+lines(c(0,0,2,2,0),c(1,9,9,1,1))
+for (i in 1:3) segments(0,2*i+1,2,2*i+1,lty=2)
+for (i in 1:3) segments(i/2,1,i/2,9,lty=2)
+#
+curve(1+x,from=0,to=2,add=TRUE)
+#
+symbols(x=1.6,y=1.5,
+rectangles=matrix(c(0.75,0.45),byrow=TRUE,
+ncol=2,nrow=1),
+inches=FALSE,bg="white",fg="white",add=TRUE)
+text(1.6,1.5,"No distributions")
+#
+curve(3*x/2+3,from=0,to=2,add=TRUE)
+#
+symbols(1.1,4.625,circles=0.07,inches=FALSE,
+bg="white",add=TRUE)
+text(1.1,4.65,labels="III")
+#
+pcb<-function(x){
+x^2/64+39*x/32+105/64 + 
+sqrt(x^4+156*x^3+1686*x^2+7154*x+11025)/64
+}
+#
+curve(pcb,from=0,to=2,add=TRUE)
+#
+symbols(1.4,5.835,circles=0.07,inches=FALSE,
+bg="white",add=TRUE)
+text(1.4,5.837,labels="V")
+#
+text(1.75,6.05,labels="VI")
+#
+curve(15*x/8+9/2,from=0,to=2,add=TRUE)
+#
+symbols(x=0.5,y=8.5,
+rectangles=matrix(c(0.9,0.45),byrow=TRUE,
+ncol=2,nrow=1),
+inches=FALSE,bg="white",fg="white",add=TRUE)
+text(0.5,8.5,"No Pearson curves")
+#
+text(1.875,7.383,"IV")
+text(1.15,6.023,"IV")
+text(0.425,4.664,"IV")
+#
+axis(1,at=0.5*(0:4),tick=FALSE,col="white")
+#
+axis(2,at=c(1,3,5,7,9),
+labels=c("1.0","3.0","5.0","7.0","9.0"),
+las=1,tick=FALSE,col="white")
+mtext(expression(beta [2]),side=2,line=3,las=1)
+#
+symbols(0,3,squares=0.1,inches=FALSE,bg="white",
+add=TRUE)
+text(0,3,labels="G")
+#
+symbols(0.,1.975,circles=0.07,inches=FALSE,
+bg="white",add=TRUE)
+text(0.,2.,labels="II")
+#
+symbols(0,3.825,circles=0.08,inches=FALSE,
+bg="white",add=TRUE)
+text(0,3.825,labels="VII")
+#
+text(1.625,4.125,labels="I")
+text(1.125,3.375,labels="I")
+text(0.625,2.625,labels="I")
+#
+points(0,4.35,pch=24,bg="black")
+points(0,3.35,pch=25,bg="black")
+#
+points(0,2.65,pch=24,bg="black")
+points(0,1.15,pch=25,bg="black")
+#
+# Estimate of skewness and kurtosis for perch mass
+# with standard error rectangle
+#
+n<-length(AB$H)
+diff<-AB$H-mean(AB$H)
+diff2<-diff*diff
+nm2<-sum(diff2)/n
+nm3<-sum(diff*diff2)/n
+nm4<-sum(diff2*diff2)/n
+beta1<-nm3*nm3/(nm2*nm2*nm2)
+beta2<-nm4/(nm2*nm2)
+#
+vbeta1<-6*n*(n-1)/((n-2)*(n+1)*(n+3))
+vbeta2<-24*n*(n-1)*(n-1)/((n-3)*(n-2)*(n+3)*(n+5))
+width<-4*sqrt(vbeta1)
+height<-4*sqrt(vbeta2)
+whm<-matrix(c(width,height),nrow=1,ncol=2,byrow=TRUE)
+#
+points(beta1,beta2,pch=19)
+#
+symbols(x=beta1,y=beta2,rectangles=whm,add=TRUE)
+```
+
+## Pearson's Curves - Yankees Hits
+```{r}
+plot(c(0,2),c(0,9),type="n",xlim=c(0,2),
+ylim=c(1,9),xlab=expression(beta [1]),
+ylab=" ",xaxt="n",yaxt="n", main="Yankees Hits")
+#
+lines(c(0,0,2,2,0),c(1,9,9,1,1))
+for (i in 1:3) segments(0,2*i+1,2,2*i+1,lty=2)
+for (i in 1:3) segments(i/2,1,i/2,9,lty=2)
+#
+curve(1+x,from=0,to=2,add=TRUE)
+#
+symbols(x=1.6,y=1.5,
+rectangles=matrix(c(0.75,0.45),byrow=TRUE,
+ncol=2,nrow=1),
+inches=FALSE,bg="white",fg="white",add=TRUE)
+text(1.6,1.5,"No distributions")
+#
+curve(3*x/2+3,from=0,to=2,add=TRUE)
+#
+symbols(1.1,4.625,circles=0.07,inches=FALSE,
+bg="white",add=TRUE)
+text(1.1,4.65,labels="III")
+#
+pcb<-function(x){
+x^2/64+39*x/32+105/64 + 
+sqrt(x^4+156*x^3+1686*x^2+7154*x+11025)/64
+}
+#
+curve(pcb,from=0,to=2,add=TRUE)
+#
+symbols(1.4,5.835,circles=0.07,inches=FALSE,
+bg="white",add=TRUE)
+text(1.4,5.837,labels="V")
+#
+text(1.75,6.05,labels="VI")
+#
+curve(15*x/8+9/2,from=0,to=2,add=TRUE)
+#
+symbols(x=0.5,y=8.5,
+rectangles=matrix(c(0.9,0.45),byrow=TRUE,
+ncol=2,nrow=1),
+inches=FALSE,bg="white",fg="white",add=TRUE)
+text(0.5,8.5,"No Pearson curves")
+#
+text(1.875,7.383,"IV")
+text(1.15,6.023,"IV")
+text(0.425,4.664,"IV")
+#
+axis(1,at=0.5*(0:4),tick=FALSE,col="white")
+#
+axis(2,at=c(1,3,5,7,9),
+labels=c("1.0","3.0","5.0","7.0","9.0"),
+las=1,tick=FALSE,col="white")
+mtext(expression(beta [2]),side=2,line=3,las=1)
+#
+symbols(0,3,squares=0.1,inches=FALSE,bg="white",
+add=TRUE)
+text(0,3,labels="G")
+#
+symbols(0.,1.975,circles=0.07,inches=FALSE,
+bg="white",add=TRUE)
+text(0.,2.,labels="II")
+#
+symbols(0,3.825,circles=0.08,inches=FALSE,
+bg="white",add=TRUE)
+text(0,3.825,labels="VII")
+#
+text(1.625,4.125,labels="I")
+text(1.125,3.375,labels="I")
+text(0.625,2.625,labels="I")
+#
+points(0,4.35,pch=24,bg="black")
+points(0,3.35,pch=25,bg="black")
+#
+points(0,2.65,pch=24,bg="black")
+points(0,1.15,pch=25,bg="black")
+#
+# Estimate of skewness and kurtosis for perch mass
+# with standard error rectangle
+#
+n<-length(YB$H)
+diff<-YB$H-mean(YB$H)
+diff2<-diff*diff
+nm2<-sum(diff2)/n
+nm3<-sum(diff*diff2)/n
+nm4<-sum(diff2*diff2)/n
+beta1<-nm3*nm3/(nm2*nm2*nm2)
+beta2<-nm4/(nm2*nm2)
+#
+vbeta1<-6*n*(n-1)/((n-2)*(n+1)*(n+3))
+vbeta2<-24*n*(n-1)*(n-1)/((n-3)*(n-2)*(n+3)*(n+5))
+width<-4*sqrt(vbeta1)
+height<-4*sqrt(vbeta2)
+whm<-matrix(c(width,height),nrow=1,ncol=2,byrow=TRUE)
+#
+points(beta1,beta2,pch=19)
+#
+symbols(x=beta1,y=beta2,rectangles=whm,add=TRUE)
+```
+
+## Pearson's Curves - Astros HR
+```{r}
+plot(c(0,2),c(0,9),type="n",xlim=c(0,2),
+ylim=c(1,9),xlab=expression(beta [1]),
+ylab=" ",xaxt="n",yaxt="n")
+#
+lines(c(0,0,2,2,0),c(1,9,9,1,1))
+for (i in 1:3) segments(0,2*i+1,2,2*i+1,lty=2)
+for (i in 1:3) segments(i/2,1,i/2,9,lty=2)
+#
+curve(1+x,from=0,to=2,add=TRUE)
+#
+symbols(x=1.6,y=1.5,
+rectangles=matrix(c(0.75,0.45),byrow=TRUE,
+ncol=2,nrow=1),
+inches=FALSE,bg="white",fg="white",add=TRUE)
+text(1.6,1.5,"No distributions")
+#
+curve(3*x/2+3,from=0,to=2,add=TRUE)
+#
+symbols(1.1,4.625,circles=0.07,inches=FALSE,
+bg="white",add=TRUE)
+text(1.1,4.65,labels="III")
+#
+pcb<-function(x){
+x^2/64+39*x/32+105/64 + 
+sqrt(x^4+156*x^3+1686*x^2+7154*x+11025)/64
+}
+#
+curve(pcb,from=0,to=2,add=TRUE)
+#
+symbols(1.4,5.835,circles=0.07,inches=FALSE,
+bg="white",add=TRUE)
+text(1.4,5.837,labels="V")
+#
+text(1.75,6.05,labels="VI")
+#
+curve(15*x/8+9/2,from=0,to=2,add=TRUE)
+#
+symbols(x=0.5,y=8.5,
+rectangles=matrix(c(0.9,0.45),byrow=TRUE,
+ncol=2,nrow=1),
+inches=FALSE,bg="white",fg="white",add=TRUE)
+text(0.5,8.5,"No Pearson curves")
+#
+text(1.875,7.383,"IV")
+text(1.15,6.023,"IV")
+text(0.425,4.664,"IV")
+#
+axis(1,at=0.5*(0:4),tick=FALSE,col="white")
+#
+axis(2,at=c(1,3,5,7,9),
+labels=c("1.0","3.0","5.0","7.0","9.0"),
+las=1,tick=FALSE,col="white")
+mtext(expression(beta [2]),side=2,line=3,las=1)
+#
+symbols(0,3,squares=0.1,inches=FALSE,bg="white",
+add=TRUE)
+text(0,3,labels="G")
+#
+symbols(0.,1.975,circles=0.07,inches=FALSE,
+bg="white",add=TRUE)
+text(0.,2.,labels="II")
+#
+symbols(0,3.825,circles=0.08,inches=FALSE,
+bg="white",add=TRUE)
+text(0,3.825,labels="VII")
+#
+text(1.625,4.125,labels="I")
+text(1.125,3.375,labels="I")
+text(0.625,2.625,labels="I")
+#
+points(0,4.35,pch=24,bg="black")
+points(0,3.35,pch=25,bg="black")
+#
+points(0,2.65,pch=24,bg="black")
+points(0,1.15,pch=25,bg="black")
+#
+# Estimate of skewness and kurtosis for perch mass
+# with standard error rectangle
+#
+n<-length(AB$HR)
+diff<-AB$HR-mean(AB$HR)
+diff2<-diff*diff
+nm2<-sum(diff2)/n
+nm3<-sum(diff*diff2)/n
+nm4<-sum(diff2*diff2)/n
+beta1<-nm3*nm3/(nm2*nm2*nm2)
+beta2<-nm4/(nm2*nm2)
+#
+vbeta1<-6*n*(n-1)/((n-2)*(n+1)*(n+3))
+vbeta2<-24*n*(n-1)*(n-1)/((n-3)*(n-2)*(n+3)*(n+5))
+width<-4*sqrt(vbeta1)
+height<-4*sqrt(vbeta2)
+whm<-matrix(c(width,height),nrow=1,ncol=2,byrow=TRUE)
+#
+points(beta1,beta2,pch=19)
+#
+symbols(x=beta1,y=beta2,rectangles=whm,add=TRUE)
+```
+
+## Pearson's Curves - Yankees HR
+```{r}
+plot(c(0,2),c(0,9),type="n",xlim=c(0,2),
+ylim=c(1,9),xlab=expression(beta [1]),
+ylab=" ",xaxt="n",yaxt="n")
+#
+lines(c(0,0,2,2,0),c(1,9,9,1,1))
+for (i in 1:3) segments(0,2*i+1,2,2*i+1,lty=2)
+for (i in 1:3) segments(i/2,1,i/2,9,lty=2)
+#
+curve(1+x,from=0,to=2,add=TRUE)
+#
+symbols(x=1.6,y=1.5,
+rectangles=matrix(c(0.75,0.45),byrow=TRUE,
+ncol=2,nrow=1),
+inches=FALSE,bg="white",fg="white",add=TRUE)
+text(1.6,1.5,"No distributions")
+#
+curve(3*x/2+3,from=0,to=2,add=TRUE)
+#
+symbols(1.1,4.625,circles=0.07,inches=FALSE,
+bg="white",add=TRUE)
+text(1.1,4.65,labels="III")
+#
+pcb<-function(x){
+x^2/64+39*x/32+105/64 + 
+sqrt(x^4+156*x^3+1686*x^2+7154*x+11025)/64
+}
+#
+curve(pcb,from=0,to=2,add=TRUE)
+#
+symbols(1.4,5.835,circles=0.07,inches=FALSE,
+bg="white",add=TRUE)
+text(1.4,5.837,labels="V")
+#
+text(1.75,6.05,labels="VI")
+#
+curve(15*x/8+9/2,from=0,to=2,add=TRUE)
+#
+symbols(x=0.5,y=8.5,
+rectangles=matrix(c(0.9,0.45),byrow=TRUE,
+ncol=2,nrow=1),
+inches=FALSE,bg="white",fg="white",add=TRUE)
+text(0.5,8.5,"No Pearson curves")
+#
+text(1.875,7.383,"IV")
+text(1.15,6.023,"IV")
+text(0.425,4.664,"IV")
+#
+axis(1,at=0.5*(0:4),tick=FALSE,col="white")
+#
+axis(2,at=c(1,3,5,7,9),
+labels=c("1.0","3.0","5.0","7.0","9.0"),
+las=1,tick=FALSE,col="white")
+mtext(expression(beta [2]),side=2,line=3,las=1)
+#
+symbols(0,3,squares=0.1,inches=FALSE,bg="white",
+add=TRUE)
+text(0,3,labels="G")
+#
+symbols(0.,1.975,circles=0.07,inches=FALSE,
+bg="white",add=TRUE)
+text(0.,2.,labels="II")
+#
+symbols(0,3.825,circles=0.08,inches=FALSE,
+bg="white",add=TRUE)
+text(0,3.825,labels="VII")
+#
+text(1.625,4.125,labels="I")
+text(1.125,3.375,labels="I")
+text(0.625,2.625,labels="I")
+#
+points(0,4.35,pch=24,bg="black")
+points(0,3.35,pch=25,bg="black")
+#
+points(0,2.65,pch=24,bg="black")
+points(0,1.15,pch=25,bg="black")
+#
+# Estimate of skewness and kurtosis for perch mass
+# with standard error rectangle
+#
+n<-length(YB$HR)
+diff<-YB$HR-mean(YB$HR)
+diff2<-diff*diff
+nm2<-sum(diff2)/n
+nm3<-sum(diff*diff2)/n
+nm4<-sum(diff2*diff2)/n
+beta1<-nm3*nm3/(nm2*nm2*nm2)
+beta2<-nm4/(nm2*nm2)
+#
+vbeta1<-6*n*(n-1)/((n-2)*(n+1)*(n+3))
+vbeta2<-24*n*(n-1)*(n-1)/((n-3)*(n-2)*(n+3)*(n+5))
+width<-4*sqrt(vbeta1)
+height<-4*sqrt(vbeta2)
+whm<-matrix(c(width,height),nrow=1,ncol=2,byrow=TRUE)
+#
+points(beta1,beta2,pch=19)
+#
+symbols(x=beta1,y=beta2,rectangles=whm,add=TRUE)
+```
+
+## Gram-Charlier Series Expansion - Astros Hits
+```{r}
+brk <- c(0, 25, 50, 75, 100,125,150,175,200)
+class1 = 3.49*(sd(AB$H))*((length(AB$H))^(-1/3))
+hist(AB$H,breaks=brk,freq=FALSE,
+xlab="Hits",xlim=c(0,200),main="2022 Astros Hits",
+xaxt="n",ylab="Relative Frequency"
+,ylim=c(-0.001,.02))
+axis(1,at=NULL)
+n<-length(AB$H)
+m_mass<-mean(AB$H)
+sd_mass<-sd(AB$H)
+zed<-(AB$H-m_mass)/sd_mass
+zed_t<-zed*zed*zed
+z_m3<-sum(zed_t)/n
+zed_t<-zed_t*zed
+z_m4<-sum(zed_t)/n
+c3<-z_m3/6
+c4<-(z_m4-3)/24
+phix<-function(x,meanx,sdx){dnorm((x-meanx)/sdx)/sdx}
+H3<-function(x,meanx,sdx) {
+z<-(x-meanx)/sdx
+z*(z*z-3)*dnorm(z)/sdx
+}
+H4<-function(x,meanx,sdx) {
+z<-(x-meanx)/sdx
+(z*z*(z*z-6)+3)*dnorm(z)/sdx
+}
+GCA<-function(x,meanx,sdx,c3,c4) {
+z<-(x-meanx)/sdx
+dnorm(z)/sdx+c3*H3(x,meanx,sdx)+c4*H4(x,meanx,sdx)
+}
+curve(phix(x,m_mass,sd_mass),from=0,to=200,
+add=TRUE,lty=2,lwd=1.5)
+curve(c3*H3(x,m_mass,sd_mass),from=0,to=200,
+add=TRUE,lty=3,lwd=1.5)
+curve(c4*H4(x,m_mass,sd_mass),from=0,to=200,
+add=TRUE,lty=4,lwd=1.5)
+curve(GCA(x,m_mass,sd_mass,c3,c4),from=0,to=200,
+add=TRUE,lty=1,lwd=1.5)
+legend(x=150,y=.02,legend=c("pdf",expression(H[0]),
+expression(mu*"*"[3]~H[3]/6),expression(mu*"*"[4]~H[4]/24)),
+lty=c(1,2,3,4),lwd=c(1.5,1.5,1.5,1.5))
+```
+
+## Gram-Charlier Series Expansion - Yankees Hits
+```{r}
+brk <- c(0, 25, 50, 75, 100,125,150,175,205)
+class1 = 3.49*(sd(YB$H))*((length(YB$H))^(-1/3))
+hist(YB$H,breaks=brk,freq=FALSE,
+xlab="Hits",xlim=c(0,205),main="1998 Yankees Hits",
+xaxt="n",ylab="Relative Frequency"
+,ylim=c(-0.001,.02))
+axis(1,at=NULL)
+n<-length(YB$H)
+m_mass<-mean(YB$H)
+sd_mass<-sd(YB$H)
+zed<-(YB$H-m_mass)/sd_mass
+zed_t<-zed*zed*zed
+z_m3<-sum(zed_t)/n
+zed_t<-zed_t*zed
+z_m4<-sum(zed_t)/n
+c3<-z_m3/6
+c4<-(z_m4-3)/24
+phix<-function(x,meanx,sdx){dnorm((x-meanx)/sdx)/sdx}
+H3<-function(x,meanx,sdx) {
+z<-(x-meanx)/sdx
+z*(z*z-3)*dnorm(z)/sdx
+}
+H4<-function(x,meanx,sdx) {
+z<-(x-meanx)/sdx
+(z*z*(z*z-6)+3)*dnorm(z)/sdx
+}
+GCA<-function(x,meanx,sdx,c3,c4) {
+z<-(x-meanx)/sdx
+dnorm(z)/sdx+c3*H3(x,meanx,sdx)+c4*H4(x,meanx,sdx)
+}
+curve(phix(x,m_mass,sd_mass),from=0,to=200,
+add=TRUE,lty=2,lwd=1.5)
+curve(c3*H3(x,m_mass,sd_mass),from=0,to=200,
+add=TRUE,lty=3,lwd=1.5)
+curve(c4*H4(x,m_mass,sd_mass),from=0,to=200,
+add=TRUE,lty=4,lwd=1.5)
+curve(GCA(x,m_mass,sd_mass,c3,c4),from=0,to=200,
+add=TRUE,lty=1,lwd=1.5)
+legend(x=150,y=.02,legend=c("pdf",expression(H[0]),
+expression(mu*"*"[3]~H[3]/6),expression(mu*"*"[4]~H[4]/24)),
+lty=c(1,2,3,4),lwd=c(1.5,1.5,1.5,1.5))
+```
+
+## Gram-Charlier Series Expansion - Astros HR
+```{r}
+brk <- c(0, 5,10,15,20,25,30,35,40)
+class1 = 3.49*(sd(AB$HR))*((length(AB$HR))^(-1/3))
+hist(AB$HR,breaks=brk,freq=FALSE,
+xlab="Home Runs",xlim=c(0,40),main="2022 Astros HR",
+xaxt="n",ylab="Relative Frequency"
+,ylim=c(-0.001,.15))
+axis(1,at=NULL)
+n<-length(AB$HR)
+m_mass<-mean(AB$HR)
+sd_mass<-sd(AB$HR)
+zed<-(AB$HR-m_mass)/sd_mass
+zed_t<-zed*zed*zed
+z_m3<-sum(zed_t)/n
+zed_t<-zed_t*zed
+z_m4<-sum(zed_t)/n
+c3<-z_m3/6
+c4<-(z_m4-3)/24
+phix<-function(x,meanx,sdx){dnorm((x-meanx)/sdx)/sdx}
+H3<-function(x,meanx,sdx) {
+z<-(x-meanx)/sdx
+z*(z*z-3)*dnorm(z)/sdx
+}
+H4<-function(x,meanx,sdx) {
+z<-(x-meanx)/sdx
+(z*z*(z*z-6)+3)*dnorm(z)/sdx
+}
+GCA<-function(x,meanx,sdx,c3,c4) {
+z<-(x-meanx)/sdx
+dnorm(z)/sdx+c3*H3(x,meanx,sdx)+c4*H4(x,meanx,sdx)
+}
+curve(phix(x,m_mass,sd_mass),from=0,to=40,
+add=TRUE,lty=2,lwd=1.5)
+curve(c3*H3(x,m_mass,sd_mass),from=0,to=40,
+add=TRUE,lty=3,lwd=1.5)
+curve(c4*H4(x,m_mass,sd_mass),from=0,to=40,
+add=TRUE,lty=4,lwd=1.5)
+curve(GCA(x,m_mass,sd_mass,c3,c4),from=0,to=40,
+add=TRUE,lty=1,lwd=1.5)
+legend(x=30,y=.15,legend=c("pdf",expression(H[0]),
+expression(mu*"*"[3]~H[3]/6),expression(mu*"*"[4]~H[4]/24)),
+lty=c(1,2,3,4),lwd=c(1.5,1.5,1.5,1.5))
+```
+
+
+## Gram-Charlier Series Expansion - Yankees HR
+```{r}
+brk <- c(0, 5,10,15,20,25,30,35,40)
+class1 = 3.49*(sd(YB$HR))*((length(YB$HR))^(-1/3))
+hist(YB$HR,breaks=brk,freq=FALSE,
+xlab="Home Runs",xlim=c(0,40),main="1998 Yankees HR",
+xaxt="n",ylab="Relative Frequency"
+,ylim=c(-0.001,.15))
+axis(1,at=NULL)
+n<-length(YB$HR)
+m_mass<-mean(YB$HR)
+sd_mass<-sd(YB$HR)
+zed<-(YB$HR-m_mass)/sd_mass
+zed_t<-zed*zed*zed
+z_m3<-sum(zed_t)/n
+zed_t<-zed_t*zed
+z_m4<-sum(zed_t)/n
+c3<-z_m3/6
+c4<-(z_m4-3)/24
+phix<-function(x,meanx,sdx){dnorm((x-meanx)/sdx)/sdx}
+H3<-function(x,meanx,sdx) {
+z<-(x-meanx)/sdx
+z*(z*z-3)*dnorm(z)/sdx
+}
+H4<-function(x,meanx,sdx) {
+z<-(x-meanx)/sdx
+(z*z*(z*z-6)+3)*dnorm(z)/sdx
+}
+GCA<-function(x,meanx,sdx,c3,c4) {
+z<-(x-meanx)/sdx
+dnorm(z)/sdx+c3*H3(x,meanx,sdx)+c4*H4(x,meanx,sdx)
+}
+curve(phix(x,m_mass,sd_mass),from=0,to=40,
+add=TRUE,lty=2,lwd=1.5)
+curve(c3*H3(x,m_mass,sd_mass),from=0,to=40,
+add=TRUE,lty=3,lwd=1.5)
+curve(c4*H4(x,m_mass,sd_mass),from=0,to=40,
+add=TRUE,lty=4,lwd=1.5)
+curve(GCA(x,m_mass,sd_mass,c3,c4),from=0,to=40,
+add=TRUE,lty=1,lwd=1.5)
+legend(x=30,y=.15,legend=c("pdf",expression(H[0]),
+expression(mu*"*"[3]~H[3]/6),expression(mu*"*"[4]~H[4]/24)),
+lty=c(1,2,3,4),lwd=c(1.5,1.5,1.5,1.5))
+```
+
+# Chapter 8 Graphics
+## The Grouped Dot Chart - Astros vs Yankees Team Hitting Stats
+```{r}
+haireye<-matrix(data=c(6054,6444,5409,5643,737,965,1341,1625,214,207,715,907,83,153,1179,1025),
+nrow=8,ncol=2,byrow=TRUE,dimnames=list(c("PA","AB","R","H","HR","RBI","SB","SO"),
+c("2022 Astros","1998 Yankees")))
+#
+dotchart(haireye,xlab="Frequency",pch=19,
+lcolor="white",xlim=c(0,6500), main="2022 Astros vs 1998 Yankees Team Hitting Stats")
+#
+# Add dotted lines terminating at the dots
+#
+he<-c(haireye[,2],haireye[,1])
+dlx<-cbind(rep(0,length(he)),he)
+ys<-c(1:2,3:4,5:6,7:8,11:12,13:14,15:16,17:18)
+dly<-cbind(ys,ys)
+ldl<-length(he)
+#
+for (i in 1:ldl) lines(dlx[i,],dly[i,],lty=3)
+```
+
+## The Grouped Dot Chart - Astros vs Yankees Team Pitching Stats
+```{r}
+haireye<-matrix(data=c(106,114,53,48,1121,1357,518,656,465,619,458,466,1524,1080),
+nrow=7,ncol=2,byrow=TRUE,dimnames=list(c("W","SV","H","R","ER","BB","SO"),
+c("2022 Astros","1998 Yankees")))
+#
+dotchart(haireye,xlab="Frequency",pch=19,
+lcolor="white",xlim=c(0,1600), main="2022 Astros vs 1998 Yankees Team Pitching Stats")
+#
+# Add dotted lines terminating at the dots
+#
+he<-c(haireye[,2],haireye[,1])
+dlx<-cbind(rep(0,length(he)),he)
+ys<-c(1:2,3:4,5:7,10:12,13:14,15:16,17:18)
+dly<-cbind(ys,ys)
+ldl<-length(he)
+#
+for (i in 1:ldl) lines(dlx[i,],dly[i,],lty=3)
+```
+
+## The Side-by-Side Pie Chart - Astros vs Yankees Team Hitting Stats
+```{r}
+haireye<-matrix(data=c(6054,6444,5409,5643,737,965,1341,1625,214,207,715,907,83,153,1179,1025),
+nrow=8,ncol=2,byrow=TRUE,dimnames=list(c("PA","AB","R","H","HR","RBI","SB","SO"),
+c("2022 Astros","1998 Yankees")))
+haireye<-t(haireye)
+#
+graphics.off()
+windows(width=4.5,height=4.5,pointsize=12)
+par(fin=c(4.45,4.45),pin=c(4.45,4.45),
+mfrow=c(2,2),mai=c(0.1,0.3,0.2,0.3))
+#
+pie(haireye[,8],clockwise=TRUE,col=gray.colors(4)[4:1],main="SO")
+pie(haireye[,7],clockwise=TRUE,col=gray.colors(4)[4:1],main="SB")
+pie(haireye[,6],clockwise=TRUE,col=gray.colors(4)[4:1],main="RBI")
+pie(haireye[,5],clockwise=TRUE,col=gray.colors(4)[4:1],main="HR")
+pie(haireye[,4],clockwise=TRUE,col=gray.colors(4)[4:1],main="H")
+pie(haireye[,3],clockwise=TRUE,col=gray.colors(4)[4:1],main="R")
+pie(haireye[,2],clockwise=TRUE,col=gray.colors(4)[4:1],main="AB")
+pie(haireye[,1],clockwise=TRUE,col=gray.colors(4)[4:1],main="PA")
+```
+
+## The Side-by-Side Pie Chart - Astros vs Yankees Team Pitching Stats
+```{r}
+haireye<-matrix(data=c(106,114,53,48,1121,1357,518,656,465,619,458,466,1524,1080),
+nrow=7,ncol=2,byrow=TRUE,dimnames=list(c("W","SV","H","R","ER","BB","SO"),
+c("2022 Astros","1998 Yankees")))
+haireye<-t(haireye)
+#
+graphics.off()
+windows(width=4.5,height=4.5,pointsize=12)
+par(fin=c(4.45,4.45),pin=c(4.45,4.45),
+mfrow=c(2,2),mai=c(0.1,0.3,0.2,0.3))
+#
+pie(haireye[,7],clockwise=TRUE,col=gray.colors(4)[4:1],main="SO")
+pie(haireye[,6],clockwise=TRUE,col=gray.colors(4)[4:1],main="BB")
+pie(haireye[,5],clockwise=TRUE,col=gray.colors(4)[4:1],main="ER")
+pie(haireye[,4],clockwise=TRUE,col=gray.colors(4)[4:1],main="R")
+pie(haireye[,3],clockwise=TRUE,col=gray.colors(4)[4:1],main="H")
+pie(haireye[,2],clockwise=TRUE,col=gray.colors(4)[4:1],main="SV")
+pie(haireye[,1],clockwise=TRUE,col=gray.colors(4)[4:1],main="W")
+```
+
+## The Mosaic Chart - Astros vs Yankees Team Hitting Stats
+```{r}
+haireye<-matrix(data=c(6054,6444,5409,5643,737,965,1341,1625,214,207,715,907,83,153,1179,1025),
+nrow=8,ncol=2,byrow=TRUE,dimnames=list(c("PA","AB","R","H","HR","RBI","SB","SO"),
+c("2022 Astros","1998 Yankees")))
+#
+mosaicplot(t(haireye),main="2022 Astros vs 1998 Yankees Team Hitting Stats",las=1,
+cex=0.75,color=TRUE)
+```
+
+## The Mosaic Chart - Astros vs Yankees Team Pitching Stats
+```{r}
+haireye<-matrix(data=c(106,114,53,48,1121,1357,518,656,465,619,458,466,1524,1080),
+nrow=7,ncol=2,byrow=TRUE,dimnames=list(c("W","SV","H","R","ER","BB","SO"),
+c("2022 Astros","1998 Yankees")))
+#
+mosaicplot(t(haireye),main="2022 Astros vs 1998 Yankees Team Pitching Stats",las=1,
+cex=0.75,color=TRUE)
+```
+
+# Chapter 9 Graphics
+## The Side-By-Side Dotplot - 2022 AL Batting Average
+```{r}
+#
+fc<-AR
+#
+par(mar = c(4, 5.1, 5.1, 2.1))
+fc$Tm<-ordered(fc$Tm,labels=c("Orioles","Red Sox","White Sox",
+"Guardians","Tigers","Astros","Royals","Angels","Twins","Yankees","Athletics","Mariners","Rays","Rangers","Blue Jays"))
+stripchart(fc$BA ~ fc$Tm,pch=21,
+method="jitter",cex=1.0,xlim=c(0,.4),
+xlab="Batting Average",group.names=rep(" ",15),
+vertical=FALSE, main="2022 American League Teams Batting Average")
+#
+axis(2,at=1:15,labels=levels(fc$Tm),las=1)
+
+```
+
+## The Side-By-Side Dotplot - 1998 AL Batting Average
+```{r}
+#
+ac<-YR
+#
+par(mar = c(4, 5.1, 5.1, 2.1))
+ac$Tm<-ordered(ac$Tm,labels=c("Angels","Orioles","Red Sox","White Sox",
+"Guardians","Tigers","Royals","Twins","Yankees","Athletics","Mariners","Rays","Rangers","Blue Jays"))
+stripchart(ac$BA ~ ac$Tm,pch=21,
+method="jitter",cex=1.0,xlim=c(0,.4),
+xlab="Batting Average",group.names=rep(" ",14),
+vertical=FALSE, main="1998 American League Teams Batting Average")
+#
+axis(2,at=1:14,labels=levels(ac$Tm),las=1)
+```
+
+## The Side-By-Side Boxplot - 2022 AL Batting Average
+```{r}
+fc<-AR
+#
+par(mar = c(3.7, 4.5, 4.5, 1.8))
+fc$Tm<-ordered(fc$Tm,labels=c("Orioles","Red Sox","White Sox",
+"Guardians","Tigers","Astros","Royals","Angels","Twins","Yankees","Athletics","Mariners","Rays","Rangers","Blue Jays"))
+#
+boxplot(fc$BA ~ fc$Tm,data=fc,ylim=c(0,.75),
+xlab="Batting Average",horizontal=TRUE,las=1, main="2022 American League Teams Batting Average", ylab=NULL)
+```
+
+## The Side-By-Side Boxplot - 1998 AL Batting Average
+```{r}
+ac<-YR
+#
+par(mar = c(3.7, 4.5, 4.5, 1.8))
+ac$Tm<-ordered(ac$Tm,labels=c("Angels","Orioles","Red Sox","White Sox",
+"Guardians","Tigers","Royals","Twins","Yankees","Athletics","Mariners","Rays","Rangers","Blue Jays"))
+#
+boxplot(fc$BA ~ fc$Tm,data=fc,ylim=c(0,.75),
+xlab="Batting Average",horizontal=TRUE,las=1, main="1998 American League Teams Batting Average", ylab=NULL)
+```
+
+## The Side-By-Side Boxplot - 2022 AL Home Runs
+```{r}
+fc<-AR
+#
+par(mar = c(3.7, 4.5, 4.5, 1.8))
+fc$Tm<-ordered(fc$Tm,labels=c("Orioles","Red Sox","White Sox",
+"Guardians","Tigers","Astros","Royals","Angels","Twins","Yankees","Athletics","Mariners","Rays","Rangers","Blue Jays"))
+#
+boxplot(fc$HR ~ fc$Tm,data=fc,ylim=c(0,65),
+xlab="Home Runs",horizontal=TRUE,las=1, main="2022 American League Teams Home Runs", ylab=NULL)
+```
+
+## The Side-By-Side Boxplot - 1998 AL Home Runs
+```{r}
+fc<-YR
+#
+par(mar = c(3.7, 4.5, 4.5, 1.8))
+fc$Tm<-ordered(fc$Tm,labels=c("Angels","Orioles","Red Sox","White Sox",
+"Guardians","Tigers","Royals","Twins","Yankees","Athletics","Mariners","Rays","Rangers","Blue Jays"))
+#
+boxplot(fc$HR ~ fc$Tm,data=fc,ylim=c(0,65),
+xlab="Home Runs",horizontal=TRUE,las=1, main="1998 American League Teams Home Runs", ylab=NULL)
+```
+
+## The Notched Boxplot - 2022 AL Batting Stats
+```{r}
+fc<-AR
+#
+par(mar = c(3.7, 4.5, 4.5, 1.8))
+fc$Tm<-ordered(fc$Tm,labels=c("Orioles","Red Sox","White Sox",
+"Guardians","Tigers","Astros","Royals","Angels","Twins","Yankees","Athletics","Mariners","Rays","Rangers","Blue Jays"))
+#
+boxplot(fc$BA ~ fc$Tm,data=fc,ylim=c(0,.75),
+xlab="Batting Average",horizontal=TRUE,las=1, main="2022 American League Teams Batting Average", ylab=NULL, notch=TRUE)
+```
+
+## The Notched Boxplot - 1998 AL Batting Stats
+```{r}
+fc<-YR
+#
+par(mar = c(3.7, 4.5, 4.5, 1.8))
+fc$Tm<-ordered(ac$Tm,labels=c("Angels","Orioles","Red Sox","White Sox",
+"Guardians","Tigers","Royals","Twins","Yankees","Athletics","Mariners","Rays","Rangers","Blue Jays"))
+#
+boxplot(fc$BA ~ fc$Tm,data=fc,ylim=c(0,.75),
+xlab="Batting Average",horizontal=TRUE,las=1, main="1998 American League Teams Batting Average", ylab=NULL,notch=TRUE)
+```
+
+## The Side-By-Side Dot-Whisker Plot - 2022 AL Batting Average
+```{r}
+fc<-AR
+#
+par(mar = c(4, 5.1, 5.1, 1.8))
+fc$Tm<-ordered(fc$Tm,labels=c("Orioles","Red Sox","White Sox",
+"Guardians","Tigers","Astros","Royals","Angels","Twins","Yankees","Athletics","Mariners","Rays","Rangers","Blue Jays"))
+#
+means<-tapply(fc[,"BA"],INDEX=fc[,"Tm"],
+FUN=mean,na.rm=TRUE)
+sds<-tapply(fc[,"BA"],INDEX=fc[,"Tm"],
+FUN=sd,na.rm=TRUE)
+#
+stripchart(fc$BA ~ fc$Tm,pch=21,
+col="white",xlim=c(0,.5),xlab="Batting Average",
+group.names=rep(" ",15),vertical=FALSE, main="2022 American League Teams Batting Average")
+#
+for (i in 1:15) points(means[i],i,pch=19)
+for (i in 1:15) lines(c(means[i]-sds[i],means[i]+sds[i]),c(i,i))
+for (i in 1:15) lines(rep(means[i]-sds[i],2),c(i-0.125,i+0.125))
+for (i in 1:15) lines(rep(means[i]+sds[i],2),c(i-0.125,i+0.125))
+#
+axis(2,at=1:15,labels=levels(fc$Tm),las=1)
+```
+
+## The Side-By-Side Dot-Whisker Plot - 2022 AL Home Runs
+```{r}
+fc<-AR
+#
+par(mar = c(4, 5.1, 5.1, 1.8))
+fc$Tm<-ordered(fc$Tm,labels=c("Orioles","Red Sox","White Sox",
+"Guardians","Tigers","Astros","Royals","Angels","Twins","Yankees","Athletics","Mariners","Rays","Rangers","Blue Jays"))
+#
+means<-tapply(fc[,"HR"],INDEX=fc[,"Tm"],
+FUN=mean,na.rm=TRUE)
+sds<-tapply(fc[,"HR"],INDEX=fc[,"Tm"],
+FUN=sd,na.rm=TRUE)
+#
+stripchart(fc$HR ~ fc$Tm,pch=21,
+col="white",xlim=c(0,30),xlab="Home Runs",
+group.names=rep(" ",15),vertical=FALSE, main="2022 American League Teams Home Runs")
+#
+for (i in 1:15) points(means[i],i,pch=19)
+for (i in 1:15) lines(c(means[i]-sds[i],means[i]+sds[i]),c(i,i))
+for (i in 1:15) lines(rep(means[i]-sds[i],2),c(i-0.125,i+0.125))
+for (i in 1:15) lines(rep(means[i]+sds[i],2),c(i-0.125,i+0.125))
+#
+axis(2,at=1:15,labels=levels(fc$Tm),las=1)
+```
+
+## The Side-By-Side Dot-Whisker Plot - 1998 AL Batting Average
+```{r}
+fc<-YR
+#
+par(mar = c(4, 5.1, 5.1, 1.8))
+fc$Tm<-ordered(ac$Tm,labels=c("Angels","Orioles","Red Sox","White Sox",
+"Guardians","Tigers","Royals","Twins","Yankees","Athletics","Mariners","Rays","Rangers","Blue Jays"))
+#
+means<-tapply(fc[,"BA"],INDEX=fc[,"Tm"],
+FUN=mean,na.rm=TRUE)
+sds<-tapply(fc[,"BA"],INDEX=fc[,"Tm"],
+FUN=sd,na.rm=TRUE)
+#
+stripchart(fc$BA ~ fc$Tm,pch=21,
+col="white",xlim=c(0,.5),xlab="Batting Average",
+group.names=rep(" ",14),vertical=FALSE, main="1998 American League Teams Batting Average")
+#
+for (i in 1:14) points(means[i],i,pch=19)
+for (i in 1:14) lines(c(means[i]-sds[i],means[i]+sds[i]),c(i,i))
+for (i in 1:14) lines(rep(means[i]-sds[i],2),c(i-0.125,i+0.125))
+for (i in 1:14) lines(rep(means[i]+sds[i],2),c(i-0.125,i+0.125))
+#
+axis(2,at=1:14,labels=levels(fc$Tm),las=1)
+```
+
+## The Side-By-Side Dot-Whisker Plot - 1998 AL Home Runs
+```{r}
+fc<-YR
+#
+par(mar = c(4, 5.1, 5.1, 1.8))
+fc$Tm<-ordered(ac$Tm,labels=c("Angels","Orioles","Red Sox","White Sox",
+"Guardians","Tigers","Royals","Twins","Yankees","Athletics","Mariners","Rays","Rangers","Blue Jays"))
+#
+means<-tapply(fc[,"HR"],INDEX=fc[,"Tm"],
+FUN=mean,na.rm=TRUE)
+sds<-tapply(fc[,"HR"],INDEX=fc[,"Tm"],
+FUN=sd,na.rm=TRUE)
+#
+stripchart(fc$HR ~ fc$Tm,pch=21,
+col="white",xlim=c(0,30),xlab="Home Runs",
+group.names=rep(" ",14),vertical=FALSE, main="1998 American League Teams Home Runs")
+#
+for (i in 1:14) points(means[i],i,pch=19)
+for (i in 1:14) lines(c(means[i]-sds[i],means[i]+sds[i]),c(i,i))
+for (i in 1:14) lines(rep(means[i]-sds[i],2),c(i-0.125,i+0.125))
+for (i in 1:14) lines(rep(means[i]+sds[i],2),c(i-0.125,i+0.125))
+#
+axis(2,at=1:14,labels=levels(fc$Tm),las=1)
+```
+
+## The Trellis Kernel Density Estimate - 2022 AL Batting Stats
+```{r}
+library(lattice)
+fc<-AR
+#
+fc$Tm<-ordered(fc$Tm,labels=c("Orioles","Red Sox","White Sox",
+"Guardians","Tigers","Astros","Royals","Angels","Twins","Yankees","Athletics","Mariners","Rays","Rangers","Blue Jays"))
+#
+figure<-densityplot(~ fc$BA | fc$Tm, data=fc,
+xlab="Batting Average",ylab="Relative Density",layout=c(1,3),
+scales=list(y=list(at=(0:5)*2,limits=c(0.0,10))),
+type="density",kernel="gaussian",bw=.026227,na.rm=TRUE,
+from=0,to=.5, main="2022 American League Team Batting Average")
+print(figure)
+```
+
+## The Trellis Kernel Density Estimate - 1998 AL Batting Stats
+```{r}
+library(lattice)
+fc<-YR
+#
+fc$Tm<-ordered(ac$Tm,labels=c("Angels","Orioles","Red Sox","White Sox",
+"Guardians","Tigers","Royals","Twins","Yankees","Athletics","Mariners","Rays","Rangers","Blue Jays"))
+#
+figure<-densityplot(~ fc$BA | fc$Tm, data=fc,
+xlab="Batting Average",ylab="Relative Density",layout=c(1,3),
+scales=list(y=list(at=(0:5)*2,limits=c(0.0,10))),
+type="density",kernel="gaussian",bw=.0460897,na.rm=TRUE,
+from=0,to=.5, main="1998 American League Team Batting Average")
+print(figure)
+```
+
+# Chapter 10 Graphics
+## The Scatterplot - Astros BA vs SLG
+```{r}
+plot(AB$BA,AB$SLG,
+xlab="Batting Average",
+ylab="Slugging",xlim=c(0,1),
+ylim=c(0,1), main="2022 Astros BA vs SLG")
+```
+
+## The Scatterplot - 2022 AL BA vs SLG
+```{r}
+plot(AR$BA,AR$SLG,
+xlab="Batting Average",
+ylab="Slugging",xlim=c(0,1),
+ylim=c(0,1), main="2022 American League BA vs SLG")
+```
+
+## The Scatterplot - 2022 AL HR vs SO
+```{r}
+plot(AR$HR,AR$SO,
+xlab="Home Runs",
+ylab="Strike Outs",xlim=c(0,65),
+ylim=c(0,250), main="2022 American League HR vs SO")
+molm<-lm(AR$SO ~ AR$HR)
+abline(coef(molm))
+```
+
+## The Scatterplot - Yankees BA vs SLG
+```{r}
+plot(YB$BA,YB$SLG,
+xlab="Batting Average",
+ylab="Slugging",xlim=c(0,1),
+ylim=c(0,1), main="1998 Yankees BA vs SLG")
+```
+
+## The Scatterplot - 1998 AL BA vs SLG
+```{r}
+plot(YR$BA,YR$SLG,
+xlab="Batting Average",
+ylab="Slugging",xlim=c(0,1),
+ylim=c(0,1), main="1998 American League BA vs SLG")
+```
+
+## The Scatterplot - 1998 AL HR vs SO
+```{r}
+plot(YR$HR,YR$SO,
+xlab="Home Runs",
+ylab="Strike Outs",xlim=c(0,65),
+ylim=c(0,250), main="1998 American League HR vs SO")
+molm<-lm(YR$SO ~ YR$HR)
+abline(coef(molm))
+```
+
+## The Sunflower Plot - 2022 AL BA vs SLG
+```{r}
+library(car)
+sunflowerplot(AR$BA,AR$SLG,
+xlab="Batting Average",
+ylab="Slugging",
+xlim=c(0,.75),ylim=c(0,.75),
+seg.col="black",cex=0.5,cex.fact=1.0,seg.lwd=1.,
+size=1/16,rotate=TRUE,main="2022 American League BA vs SLG")
+dataEllipse(AR$BA,AR$SLG,
+add=TRUE,center.pch=NULL,col="black",lwd=1.0,
+levels=0.95,plot.points=FALSE)
+```
+
+## The Sunflower Plot - 1998 AL BA vs SLG
+```{r}
+sunflowerplot(YR$BA,YR$SLG,
+xlab="Batting Average",
+ylab="Slugging",
+xlim=c(0,.75),ylim=c(0,.75),
+seg.col="black",cex=0.5,cex.fact=1.0,seg.lwd=1.,
+size=1/16,rotate=TRUE,main="1998 American League BA vs SLG")
+dataEllipse(YR$BA,YR$SLG,
+add=TRUE,center.pch=NULL,col="black",lwd=1.0,
+levels=0.95,plot.points=FALSE)
+```
+
+## The Bagplot - 2022 AL BA vs SLG
+```{r}
+library(aplpack)
+bagplot(AR$BA,AR$SLG,
+xlab="Batting Average",
+ylab="Slugging",
+xlim=c(0,.75),ylim=c(0,.75),
+show.whiskers=FALSE, main="2022 American League BA vs SLG")
+```
+
+## The Bagplot - 1998 AL BA vs SLG
+```{r}
+library(aplpack)
+bagplot(YR$BA,YR$SLG,
+xlab="Batting Average",
+ylab="Slugging",
+xlim=c(0,.75),ylim=c(0,.75),
+show.whiskers=FALSE, main="1998 American League BA vs SLG")
+```
+
+## The Contour Plot - 2022 AL BA vs SLG
+```{r}
+library(ggplot2)
+library(ggthemes)
+figure<-ggplot(AR,aes(x=BA,y=SLG)) + 
+stat_density_2d(aes(fill = ..level..),
+geom = "polygon") +
+theme_linedraw() +
+theme(panel.grid=element_blank(),
+axis.line=element_line(),
+axis.title=element_text(size=12),
+axis.text=element_text(size=12)) +
+guides(fill=guide_legend(title="Density",
+reverse=TRUE))+
+scale_x_continuous(breaks=seq(0,.6,.15),
+limits=c(0,.6)) +
+scale_y_continuous(breaks=seq(0,.6,.15),
+limits=c(0,.6)) +
+labs(x="Batting Average",
+y="Slugging", title="2022 American League BA vs SLG")+ theme(plot.title=element_text(hjust = 0.5))
+#
+print(figure)
+```
+
+## The Contour Plot - 1998 AL BA vs SLG
+```{r}
+library(ggplot2)
+library(ggthemes)
+figure<-ggplot(YR,aes(x=BA,y=SLG)) + 
+stat_density_2d(aes(fill = ..level..),
+geom = "polygon") +
+theme_linedraw() +
+theme(panel.grid=element_blank(),
+axis.line=element_line(),
+axis.title=element_text(size=12),
+axis.text=element_text(size=12)) +
+guides(fill=guide_legend(title="Density",
+reverse=TRUE))+
+scale_x_continuous(breaks=seq(0,.6,.15),
+limits=c(0,.6)) +
+scale_y_continuous(breaks=seq(0,.6,.15),
+limits=c(0,.6)) +
+labs(x="Batting Average",
+y="Slugging", title="1998 American League BA vs SLG")+ theme(plot.title=element_text(hjust = 0.5))
+#
+print(figure)
+```
+
+## The Wireframe Plot - 2022 AL BA vs SLG
+```{r}
+library(lattice)
+library(MASS)
+bwmf<-c(bandwidth.nrd(AR$BA),
+bandwidth.nrd(AR$SLG))
+#
+kdemf<-kde2d(AR$BA,AR$SLG,
+h=bwmf,n=50,lims=c(0,.6,0,.6))
+#
+mfd<-expand.grid(x=kdemf$x,y=kdemf$y)
+mfd$z<-c(kdemf$z)
+#
+figure<-wireframe(z ~ x * y,data=mfd,drape=TRUE,
+col.regions=terrain.colors(100),
+xlab="Batting Average",ylab="Slugging",zlab="Prob.", main="2022 American League BA vs SLG")
+#
+print(figure)
+```
+
+## The Wireframe Plot - 1998 AL BA vs SLG
+```{r}
+library(lattice)
+library(MASS)
+bwmf<-c(bandwidth.nrd(YR$BA),
+bandwidth.nrd(YR$SLG))
+#
+kdemf<-kde2d(YR$BA,YR$SLG,
+h=bwmf,n=50,lims=c(0,.6,0,.6))
+#
+mfd<-expand.grid(x=kdemf$x,y=kdemf$y)
+mfd$z<-c(kdemf$z)
+#
+figure<-wireframe(z ~ x * y,data=mfd,drape=TRUE,
+col.regions=terrain.colors(100),
+xlab="Batting Average",ylab="Slugging",zlab="Prob.", main="1998 American League BA vs SLG")
+#
+print(figure)
+```
+
+# Chapter 11 Graphics
+## Scatterplots w/ Regression Line - Astros BA vs SLG
+```{r}
+plot(AB$BA,AB$SLG,
+xlab="Batting Average",
+ylab="Slugging",xlim=c(0,1),
+ylim=c(0,1), main="2022 Astros BA vs SLG")
+molm<-lm(AB$SLG ~ AB$BA)
+abline(coef(molm))
+```
+
+## Scatterplot w/ Regression Line - Yankees BA vs SLG
+```{r}
+plot(YB$BA,YB$SLG,
+xlab="Batting Average",
+ylab="Slugging",xlim=c(0,1),
+ylim=c(0,1), main="1998 Yankees BA vs SLG")
+molm<-lm(YB$SLG ~ YB$BA)
+abline(coef(molm))
+```
+
+## Residual Scatterplot - Astros BA vs SLG
+```{r}
+molm<-lm(AB$SLG ~ AB$BA)
+res<-residuals(molm)
+plot(AB$BA,res,xlab="Batting Average",
+ylab="Residual",xlim=c(0,.4),pch=19,cex=1,
+ylim=c(-.2,.2), main="2022 Astros BA vs SLG Residuals")
+#
+abline(c(0,0),lty=2)
+```
+
+## Residual Scatterplot - Yankees BA vs SLG
+```{r}
+molm<-lm(YB$SLG ~ YB$BA)
+res<-residuals(molm)
+plot(YB$BA,res,xlab="Batting Average",
+ylab="Residual",xlim=c(0,.4),pch=19,cex=1,
+ylim=c(-.2,.2), main="1998 Yankess BA vs SLG Residuals")
+#
+abline(c(0,0),lty=2)
+```
+
+## Distribution of Residuals - Astros BA vs SLG
+```{r}
+molm<-lm(AB$SLG ~ AB$BA)
+res<-residuals(molm)
+qqnorm(res,datax=TRUE,main=" ",cex=0.75,
+axes=FALSE,ylim=c(-.2,.2),xlab=" ",ylab=" ")
+#
+title(ylab="Standard Normal Quantiles",
+xlab="Residual", main="2022 Astros BA vs SLG Distribution of Residuals")
+#
+axis(1,at=.05*(-4:4))
+axis(2,-3:3)
+box("plot")
+#
+qqline(res,datax=TRUE)
+```
+
+## Distribution of Residuals - Yankees BA vs SLG
+```{r}
+molm<-lm(YB$SLG ~ YB$BA)
+res<-residuals(molm)
+qqnorm(res,datax=TRUE,main=" ",cex=0.75,
+axes=FALSE,ylim=c(-.2,.2),xlab=" ",ylab=" ")
+#
+title(ylab="Standard Normal Quantiles",
+xlab="Residual", main="1998 Yankees BA vs SLG Distribution of Residuals")
+#
+axis(1,at=.05*(-4:4))
+axis(2,-3:3)
+box("plot")
+#
+qqline(res,datax=TRUE)
+```
+
+## Depicting Leverage - Astros BA vs SLG
+```{r}
+molm<-lm(AB$SLG ~ AB$BA)
+plot(AB$BA,hatvalues(molm),xlim=c(0,.6),
+ylim=c(0,.6),xlab="Batting Average",
+ylab="Hat Value",cex=0.75, main="2022 Astros BA vs SLG Leverage")
+#
+abline(c(4/length(AB$BA),0),lty=2)
+#
+text(.3,0.5,"High Leverage")
+text(.3,0.0015,"Low Leverage")
+```
+
+## Depicting Leverage - Yankees BA vs SLG
+```{r}
+molm<-lm(YB$SLG ~ YB$BA)
+plot(YB$BA,hatvalues(molm),xlim=c(0,.6),
+ylim=c(0,.6),xlab="Batting Average",
+ylab="Hat Value",cex=0.75, main="1998 Yankees BA vs SLG Leverage")
+#
+abline(c(4/length(AB$BA),0),lty=2)
+#
+text(.3,0.5,"High Leverage")
+text(.3,0.0015,"Low Leverage")
+```
+
+## Depicting DFFITS - Astros BA vs SLG
+```{r}
+molm<-lm(AB$SLG ~ AB$BA)
+
+plot(AB$BA,dffits(molm),
+xlab="Batting Average",ylab="DFFITS",
+xlim=c(0,.6),ylim=c(-1,1),cex=0.75, main="2022 Astros BA vs SLG DFFITS")
+
+abline(c(2*sqrt(2/length(AB$BA)),0),lty=2)
+abline(-c(2*sqrt(2/length(AB$BA)),0),lty=2)
+#
+text(.1,.8,"High Leverage")
+text(.1,-0.8,"High Leverage")
+#
+```
+
+## Depicting DFFITS - Yankees BA vs SLG
+```{r}
+molm<-lm(YB$SLG ~ YB$BA)
+
+plot(YB$BA,dffits(molm),
+xlab="Batting Average",ylab="DFFITS",
+xlim=c(0,.6),ylim=c(-1,1),cex=0.75, main="1998 Yankees BA vs SLG DFFITS")
+
+abline(c(2*sqrt(2/length(YB$BA)),0),lty=2)
+abline(-c(2*sqrt(2/length(YB$BA)),0),lty=2)
+#
+text(.1,.8,"High Leverage")
+text(.1,-0.8,"High Leverage")
+#
+```
+
+## Influence Plots - Astros BA vs SLG
+```{r}
+library(car)
+molm<-lm(AB$SLG ~ AB$BA)
+influencePlot(molm,xlim=c(-0.01,.4),
+ylim=c(-4,4),id=FALSE, xlab="Hat-Values
+2022 Astros BA vs SLG Influence Plot")
+```
+
+## Influence Plots - Yankees BA vs SLG
+```{r}
+library(car)
+molm<-lm(YB$SLG ~ YB$BA)
+influencePlot(molm,xlim=c(-0.01,.4),
+ylim=c(-6,6),id=FALSE, xlab="Hat-Values
+1998 Yankees BA vs SLG Influence Plot")
+```
+
+# Chapter 12 Graphics
+## Spines - Astros BA vs SLG
+```{r}
+windows(width=4.5,height=6.6,pointsize=12)
+par(fin=c(4.45,6.6),pin=c(4.45,6.55)
+,mfrow=c(3,1),xaxs="r",yaxs="r",
+cex.lab=1.5,cex.axis=1.5)
+#
+par(mai=c(0.125,0.85,0.65,0.25))
+#
+plot(AB$BA,AB$SLG,xlab="Batting Average",
+ylab="Slugging",xlim=c(0,.6),ylim=c(0,.75),las=1, main="2022 Astros BA vs SLG Spline")
+#
+#
+lines(smooth.spline(AB$BA,
+AB$SLG,df=18))
+#
+text(.5,.1,labels="df = 18",cex=1.5)
+#
+par(mai=c(0.375,0.85,0.375,0.25))
+#
+plot(AB$BA,AB$SLG,xlab="Batting Average",
+ylab="Slugging",xlim=c(0,.6),ylim=c(0,.75),las=1)
+#
+#
+lines(smooth.spline(AB$BA,
+AB$SLG,df=10))
+#
+text(.5,.1,labels="df = 10",cex=1.5)
+#
+par(mai=c(0.75,0.85,0.125,0.25))
+#
+plot(AB$BA,AB$SLG,xlab="Batting Average",
+ylab="Slugging",xlim=c(0,.6),ylim=c(0,.75),las=1)
+#
+#
+lines(smooth.spline(AB$BA,
+AB$SLG,df=5))
+#
+text(.5,.1,labels="df = 5",cex=1.5)
+```
+
+## Spines - Yankees BA vs SLG
+```{r}
+windows(width=4.5,height=6.6,pointsize=12)
+par(fin=c(4.45,6.6),pin=c(4.45,6.55)
+,mfrow=c(3,1),xaxs="r",yaxs="r",
+cex.lab=1.5,cex.axis=1.5)
+#
+par(mai=c(0.125,0.85,0.65,0.25))
+#
+plot(YB$BA,YB$SLG,xlab="Batting Average",
+ylab="Slugging",xlim=c(0,.6),ylim=c(0,1),las=1, main="1998 Yankees BA vs SLG Spline")
+#
+#
+lines(smooth.spline(YB$BA,
+YB$SLG,df=18))
+#
+text(.5,.1,labels="df = 18",cex=1.5)
+#
+par(mai=c(0.375,0.85,0.375,0.25))
+#
+plot(YB$BA,YB$SLG,xlab="Batting Average",
+ylab="Slugging",xlim=c(0,.6),ylim=c(0,1),las=1)
+#
+#
+lines(smooth.spline(YB$BA,
+YB$SLG,df=10))
+#
+text(.5,.1,labels="df = 10",cex=1.5)
+#
+par(mai=c(0.75,0.85,0.125,0.25))
+#
+plot(YB$BA,YB$SLG,xlab="Batting Average",
+ylab="Slugging",xlim=c(0,.6),ylim=c(0,1),las=1)
+#
+#
+lines(smooth.spline(YB$BA,
+YB$SLG,df=5))
+#
+text(.5,.1,labels="df = 5",cex=1.5)
+```
+
